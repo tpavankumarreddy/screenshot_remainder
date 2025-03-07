@@ -48,6 +48,7 @@ dependencies:
   #screenshot_callback_fix: ^0.2.0
   #screenshot_callback_pro: ^0.0.6
   no_screenshot: ^0.3.1
+  url_launcher: ^6.3.1
   #screenshot_callback: ^3.0.1
   #hardware_buttons_find_flutter: ^0.0.4
 dev_dependencies:

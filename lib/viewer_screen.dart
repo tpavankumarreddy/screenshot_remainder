@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Screenshoot_Details.dart';
+import 'Screenshot_Details.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class ViewerScreen extends StatefulWidget {
   @override
@@ -41,6 +43,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
 
         tempScreenshots.add({
           'text': decoded['text']?.toString() ?? "No Note",
+          'link': decoded['link']?.toString() ?? "No Link",
           'imagePath': imagePath,
           'timestamp': decoded['timestamp']?.toString() ?? "",
           'appName': appName,
@@ -108,7 +111,7 @@ class _ViewerScreenState extends State<ViewerScreen> {
   }
 
   /// Update notes
-  void updateScreenshot(int index, String newText) async {
+  void updateScreenshotText(int index, String newText) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     savedScreenshots[index]['text'] = newText;
     List<String> updatedData =
@@ -117,6 +120,17 @@ class _ViewerScreenState extends State<ViewerScreen> {
 
     filterScreenshots(selectedApp); // Refresh filtered list
   }
+  /// Update link
+  void updateScreenshotLink(int index, String newLink) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    savedScreenshots[index]['link'] = newLink;
+    List<String> updatedData =
+    savedScreenshots.map((item) => jsonEncode(item)).toList();
+    await prefs.setStringList('screenshots', updatedData);
+
+    filterScreenshots(selectedApp); // Refresh filtered list
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +171,8 @@ class _ViewerScreenState extends State<ViewerScreen> {
               itemBuilder: (context, index) {
                 String imagePath =
                     filteredScreenshots[index]['imagePath'] ?? "";
+                String link =
+                    filteredScreenshots[index]['link'] ?? "No Link";
                 String text =
                     filteredScreenshots[index]['text'] ?? "No Note";
                 String timestamp =
@@ -172,11 +188,19 @@ class _ViewerScreenState extends State<ViewerScreen> {
                           builder: (context) => ScreenshotDetailScreen(
                             imagePath: imagePath,
                             text: text,
+                            link: link,
                             onTextUpdated: (newText) {
                               int originalIndex = savedScreenshots.indexWhere(
                                       (s) => s['imagePath'] == imagePath);
                               if (originalIndex != -1) {
-                                updateScreenshot(originalIndex, newText);
+                                updateScreenshotText(originalIndex, newText);
+                              }
+                            },
+                            onLinkUpdated: (newLink) {
+                              int originalIndex = savedScreenshots.indexWhere(
+                                      (s) => s['imagePath'] == imagePath);
+                              if (originalIndex != -1) {
+                                updateScreenshotLink(originalIndex, newLink);
                               }
                             },
                           ),
@@ -258,7 +282,27 @@ class _ViewerScreenState extends State<ViewerScreen> {
                                 ),
                               );
                             },
-                          )
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.link, color: Colors.blue),
+                            onPressed: () async {
+                              if (link.isNotEmpty && link != "No Link") {
+                                Uri uri = Uri.parse(link);
+                                if (await canLaunchUrl(uri)) {
+                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Could not open the link")),
+                                  );
+                                }
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("No valid link available")),
+                                );
+                              }
+                            },
+                          ),
+
 
                         ],
                       ),

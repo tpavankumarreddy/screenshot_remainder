@@ -20,6 +20,8 @@ class OverlayScreen extends StatefulWidget {
 class _OverlayScreenState extends State<OverlayScreen> {
   ScreenshotController screenshotController = ScreenshotController();
   TextEditingController textController = TextEditingController();
+  TextEditingController linkController = TextEditingController();
+
   bool isSaving = false;
   String latestScreenshotPath = "";
 
@@ -62,7 +64,7 @@ class _OverlayScreenState extends State<OverlayScreen> {
     }
   }
 
-  Future<void> saveScreenshot(String text) async {
+  Future<void> saveScreenshot(String text, String link) async {
     if (isSaving) return;
     setState(() => isSaving = true);
 
@@ -81,6 +83,7 @@ class _OverlayScreenState extends State<OverlayScreen> {
 
     Map<String, String> screenshotData = {
       'text': text.isNotEmpty ? text : "No Notes",
+      'link': link.isNotEmpty ? link : "No Link",
       'imagePath': imageToSave,
       'timestamp': DateTime.now().toString(),
     };
@@ -169,6 +172,19 @@ class _OverlayScreenState extends State<OverlayScreen> {
                       ),
                     ),
                     SizedBox(height: 12),
+                    TextField(
+                      controller: linkController,
+                      maxLines: 2,
+                      decoration: InputDecoration(
+                        labelText: 'Add Link',
+                        labelStyle: TextStyle(color: Colors.black54),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -191,7 +207,7 @@ class _OverlayScreenState extends State<OverlayScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          onPressed: () => saveScreenshot(textController.text),
+                          onPressed: () => saveScreenshot(textController.text, linkController.text),
                           child: Text("Save"),
                         ),
                       ],

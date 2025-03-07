@@ -4,12 +4,16 @@ import 'package:flutter/material.dart';
 class ScreenshotDetailScreen extends StatefulWidget {
   final String imagePath;
   final String text;
+  final String link;
   final Function(String) onTextUpdated;
+  final Function(String) onLinkUpdated;
 
   ScreenshotDetailScreen({
     required this.imagePath,
     required this.text,
     required this.onTextUpdated,
+    required this.onLinkUpdated,
+    required  this.link,
   });
 
   @override
@@ -18,23 +22,28 @@ class ScreenshotDetailScreen extends StatefulWidget {
 
 class _ScreenshotDetailScreenState extends State<ScreenshotDetailScreen> {
   late TextEditingController _textController;
+  late TextEditingController _linkController;
 
   @override
   void initState() {
     super.initState();
     _textController = TextEditingController(text: widget.text);
+    _linkController = TextEditingController(text: widget.link);
   }
 
   @override
   void dispose() {
     _textController.dispose();
+    _linkController.dispose();
     super.dispose();
   }
 
-  void saveUpdatedText() {
+  void saveUpdatedTextAndLink() {
     widget.onTextUpdated(_textController.text);
+    widget.onLinkUpdated(_linkController.text);
     Navigator.pop(context); // Return to ViewerScreen
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +85,20 @@ class _ScreenshotDetailScreenState extends State<ScreenshotDetailScreen> {
             ),
             SizedBox(height: 20),
 
+            // Editable Link Field
+            TextField(
+              controller: _linkController,
+              decoration: InputDecoration(
+                labelText: "Edit Link",
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 2,
+            ),
+            SizedBox(height: 20),
+
             // Save Button
             ElevatedButton(
-              onPressed: saveUpdatedText,
+              onPressed: saveUpdatedTextAndLink,
               child: Text("Save Changes"),
             ),
           ],

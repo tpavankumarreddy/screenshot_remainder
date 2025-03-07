@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.screenshot_remainder"
-    compileSdk = 34 // Explicit compile SDK version
+    compileSdk = 35 // Explicit compile SDK version
 
     ndkVersion = "27.0.12077973"
 
